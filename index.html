@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+        <link rel="shortcut icon" type="image/png" href="../../img/favicon.png">
+        <title></title>
+        <!-- CSS -->
+        <link rel="stylesheet" href="node_modules/jsplumbtoolkit/dist/css/jsplumbtoolkit.css">
+        <link rel="stylesheet" href="node_modules/jsplumbtoolkit-syntax-highlighter/dist/css/jsplumbtoolkit-syntax-highlighter.css">
+        <link rel="stylesheet" href="node_modules/jsplumbtoolkit-demo-support/dist/css/jsplumbtoolkit-demo-support.css">
+        <!-- /CSS -->
+        <link rel="stylesheet" href="app.css">
+    </head>
+
+    <body>
+
+        <!-- content -->
+        <script type="text/x-jtk-templates" src="templates.html"></script>
+
+        <div class="jtk-demo-main" id="jtk-demo-dbase">
+
+
+            <!-- this is the main drawing area -->
+            <div class="jtk-demo-canvas">
+                <div class="controls">
+                    <i class="fa fa-arrows selected-mode" mode="pan" title="Pan Mode"></i>
+                    <i class="fa fa-pencil" mode="select" title="Select Mode"></i>
+                    <i class="fa fa-home" reset title="Zoom To Fit"></i>
+                    <i class="fa fa-undo" undo title="Undo last action"></i>
+                    <i class="fa fa-repeat" redo title="Redo last action"></i>
+                </div>
+                <!-- miniview -->
+                <div class="miniview"></div>
+            </div>
+            <div class="jtk-demo-rhs">
+                <!-- the node palette -->
+                <div class="sidebar node-palette">
+                    <div data-node-type="table" title="Drag to add new" class="sidebar-item"><i class="fa fa-table btn-icon-margin"></i>Table</div>
+                    <div data-node-type="view" title="Drag to add new" class="sidebar-item"><i class="fa fa-eye btn-icon-margin"></i>View</div>
+                </div>
+                <div class="description">
+                    <p>
+                        This is a visualizer for a database schema. Tables and views are supported, and
+                        you can drag relationships between columns in tables. The current state of the dataset is shown below.
+                    </p>
+                    <ul>
+                        <li>Drag new nodes from the palette onto the workspace to add nodes</li>
+                        <li>Click the + icon on any Table to add a Column</li>
+                        <li>Click a Table or View name to edit it</li>
+                        <li>Click the 'Pencil' icon in a column to edit it</li>
+                        <li>Click the 'Pencil' icon to enter 'select' mode, then select several nodes. Click the canvas to exit.</li>
+                        <li>Click the 'Home' icon to zoom out and see all the nodes.</li>
+                    </ul>
+                </div>
+
+                <!-- the current dataset -->
+                <div class="jtk-demo-dataset"></div>
+            </div>
+
+
+        </div>
+
+        <!-- /content -->
+
+        <!-- imports -->
+        <script src='node_modules/jsplumbtoolkit/dist/js/jsplumbtoolkit.js'></script>
+        <script src="node_modules/jsplumbtoolkit-syntax-highlighter/dist/js/jsplumbtoolkit-syntax-highlighter.js"></script>
+        <script src="node_modules/jsplumbtoolkit-undo-redo/dist/js/jsplumbtoolkit-undo-redo.js"></script>
+        <script src="node_modules/jsplumbtoolkit-drop/dist/js/jsplumbtoolkit-drop.js"></script>
+        <!-- /imports -->
+
+        <!-- demo -->        
+        <script src="app.js"></script>
+        <!-- /demo -->
+
+    </body>
+</html>
