@@ -1,6 +1,5 @@
 {
     "dependencies": {
-        "jsplumbtoolkit-dialogs": "file:./jsplumbtoolkit-dialogs.tgz",
         "jsplumbtoolkit": "file:./jsplumbtoolkit.tgz",
         "jsplumbtoolkit-undo-redo": "file:./jsplumbtoolkit-undo-redo.tgz",
         "jsplumbtoolkit-drop": "file:./jsplumbtoolkit-drop.tgz",
