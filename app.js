@@ -1,8 +1,10 @@
 ;
 (function () {
-    jsPlumbToolkit.ready(function () {
+    jsPlumbToolkitBrowserUI.ready(function () {
 
 // ------------------------ toolkit setup ------------------------------------
+
+        var dialogs;
 
         // This function is what the toolkit will use to get an ID from a node.
         var idFunction = function (n) {
@@ -22,12 +24,12 @@
             controls = mainElement.querySelector(".controls");
 
         // Declare an instance of the Toolkit, and supply the functions we will use to get ids and types from nodes.
-        var toolkit = jsPlumbToolkit.newInstance({
+        var toolkit = jsPlumbToolkitBrowserUI.newInstance({
             idFunction: idFunction,
             typeFunction: typeFunction,
             nodeFactory: function (type, data, callback) {
                 data.columns = [];
-                jsPlumbToolkit.Dialogs.show({
+                dialogs.show({
                     id: "dlgName",
                     title: "Enter " + type + " name:",
                     onOK: function (d) {
@@ -60,7 +62,7 @@
             // Prevent connections from a column to itself or to another column on the same table.
             //
             beforeConnect:function(source, target) {
-                return source !== target && source.getNode() !== target.getNode();
+                return source !== target && source.getParent() !== target.getParent();
             }
         });
 
@@ -68,19 +70,11 @@
 
 // ------------------------- dialogs -------------------------------------
 
-        jsPlumbToolkit.Dialogs.initialize({
+        dialogs = jsPlumbToolkitDialogs.newInstance({
             selector: ".dlg"
         });
 
 // ------------------------- / dialogs ----------------------------------
-
-        jsPlumb.on(controls, "tap", "[undo]", function () {
-            undoredo.undo();
-        });
-
-        jsPlumb.on(controls, "tap", "[redo]", function () {
-            undoredo.redo();
-        });
 
 
 // ------------------------ rendering ------------------------------------
@@ -115,37 +109,40 @@
                             }
                         },
                         overlays: [
-                            [ "Label", {
-                                cssClass: "delete-relationship",
-                                label: "<i class='fa fa-times'></i>",
-                                events: {
-                                    "tap": function (params) {
-                                        toolkit.removeEdge(params.edge);
+                            {
+                                type:"Label",
+                                options:{
+                                    cssClass: "delete-relationship",
+                                    label: "<i class='fa fa-times'></i>",
+                                    events: {
+                                        "tap": function (params) {
+                                            toolkit.removeEdge(params.edge);
+                                        }
                                     }
                                 }
-                            } ]
+                            }
                         ]
                     },
                     // each edge type has its own overlays.
                     "1:1": {
                         parent: "common",
                         overlays: [
-                            ["Label", { label: "1", location: 0.1 }],
-                            ["Label", { label: "1", location: 0.9 }]
+                            { type:"Label", options:{ label: "1", location: 0.1 }},
+                            { type:"Label", options:{ label: "1", location: 0.9 }}
                         ]
                     },
                     "1:N": {
                         parent: "common",
                         overlays: [
-                            ["Label", { label: "1", location: 0.1 }],
-                            ["Label", { label: "N", location: 0.9 }]
+                            { type:"Label", options:{ label: "1", location: 0.1 }},
+                            { type:"Label", options:{ label: "N", location: 0.9 }}
                         ]
                     },
                     "N:M": {
                         parent: "common",
                         overlays: [
-                            ["Label", { label: "N", location: 0.1 }],
-                            ["Label", { label: "M", location: 0.9 }]
+                            { type:"Label", options:{ label: "N", location: 0.1 }},
+                            { type:"Label", options:{ label: "M", location: 0.9 }}
                         ]
                     }
                 },
@@ -182,9 +179,15 @@
                     padding: [150, 150]
                 }
             },
-            miniview: {
-                container: miniviewElement
-            },
+            plugins:[
+                {
+                    type:"miniview",
+                    options:{
+                        container: miniviewElement
+                    }
+                }
+            ],
+
             // Register for certain events from the renderer. Here we have subscribed to the 'nodeRendered' event,
             // which is fired each time a new node is rendered.  We attach listeners to the 'new column' button
             // in each table node.  'data' has 'node' and 'el' as properties: node is the underlying node data,
@@ -207,13 +210,21 @@
             zoomToFit:true
         });
 
-        // listener for mode change on renderer.
-        renderer.bind("modeChanged", function (mode) {
-            jsPlumb.removeClass(controls.querySelectorAll("[mode]"), "selected-mode");
-            jsPlumb.addClass(controls.querySelectorAll("[mode='" + mode + "']"), "selected-mode");
+        renderer.on(controls, "tap", "[undo]", function () {
+            undoredo.undo();
         });
 
-        var undoredo = window.undoredo = new jsPlumbToolkitUndoRedo({
+        renderer.on(controls, "tap", "[redo]", function () {
+            undoredo.redo();
+        });
+
+        // listener for mode change on renderer.
+        renderer.bind("modeChanged", function (mode) {
+            renderer.removeClass(controls.querySelectorAll("[mode]"), "selected-mode");
+            renderer.addClass(controls.querySelectorAll("[mode='" + mode + "']"), "selected-mode");
+        });
+
+        var undoredo = window.undoredo = new jsPlumbToolkitUndoRedo.Manager({
             surface:renderer,
             onChange:function(undo, undoSize, redoSize) {
                 controls.setAttribute("can-undo", undoSize > 0);
@@ -225,10 +236,10 @@
 // ------------------------- behaviour ----------------------------------
 
         // delete column button
-        jsPlumb.on(canvasElement, "tap", ".table-column-delete, .table-column-delete i", function (e) {
-            jsPlumbUtil.consume(e);
+        renderer.on(canvasElement, "tap", ".table-column-delete, .table-column-delete i", function (e) {
+            jsPlumb.consume(e);
             var info = renderer.getObjectInfo(this);
-            jsPlumbToolkit.Dialogs.show({
+            dialogs.show({
                 id: "dlgConfirm",
                 data: {
                     msg: "Delete column '" + info.obj.data.name + "'"
@@ -243,13 +254,13 @@
         });
 
         // add new column to table
-        jsPlumb.on(canvasElement, "tap", ".new-column, .new-column i", function (e) {
-            jsPlumbUtil.consume(e);
+        renderer.on(canvasElement, "tap", ".new-column, .new-column i", function (e) {
+            jsPlumb.consume(e);
             var // getObjectInfo is a helper method that retrieves the node or port associated with some
                 // element in the DOM.
                 info = renderer.getObjectInfo(this);
 
-            jsPlumbToolkit.Dialogs.show({
+            dialogs.show({
                 id: "dlgColumnEdit",
                 title: "Column Details",
                 onOK: function (data) {
@@ -272,11 +283,11 @@
         });
 
         // delete a table or view
-        jsPlumb.on(canvasElement, "tap", ".delete, .view-delete", function (e) {
+        renderer.on(canvasElement, "tap", ".delete, .view-delete", function (e) {
             jsPlumbUtil.consume(e);
             var info = renderer.getObjectInfo(this);
 
-            jsPlumbToolkit.Dialogs.show({
+            dialogs.show({
                 id: "dlgConfirm",
                 data: {
                     msg: "Delete '" + info.id
@@ -289,10 +300,10 @@
         });
 
         // edit a view's query
-        jsPlumb.on(canvasElement, "tap", ".view .view-edit i", function (e) {
-            jsPlumbUtil.consume(e);
+        renderer.on(canvasElement, "tap", ".view .view-edit i", function (e) {
+            jsPlumb.consume(e);
             var info = renderer.getObjectInfo(this);
-            jsPlumbToolkit.Dialogs.show({
+            dialogs.show({
                 id: "dlgViewQuery",
                 data: info.obj.data,
                 onOK: function (data) {
@@ -303,13 +314,13 @@
         });
 
         // change a view or table's name
-        jsPlumb.on(canvasElement, "tap", ".edit-name", function (e) {
-            jsPlumbUtil.consume(e);
+        renderer.on(canvasElement, "tap", ".edit-name", function (e) {
+            jsPlumb.consume(e);
             // getObjectInfo is a method that takes some DOM element (this function's `this` is
             // set to the element that fired the event) and returns the toolkit data object that
             // relates to the element.
             var info = renderer.getObjectInfo(this);
-            jsPlumbToolkit.Dialogs.show({
+            dialogs.show({
                 id: "dlgName",
                 data: info.obj.data,
                 title: "Edit " + info.obj.data.type + " name",
@@ -325,7 +336,7 @@
 
         // edit an edge's detail
         var _editEdge = function (edge, isNew) {
-            jsPlumbToolkit.Dialogs.show({
+            dialogs.show({
                 id: "dlgRelationshipType",
                 data: edge.data,
                 onOK: function (data) {
@@ -341,10 +352,10 @@
         };
 
         // edit a column's details
-        jsPlumb.on(canvasElement, "tap", ".table-column-edit i", function (e) {
-            jsPlumbUtil.consume(e);
+        renderer.on(canvasElement, "tap", ".table-column-edit i", function (e) {
+            jsPlumb.consume(e);
             var info = renderer.getObjectInfo(this);
-            jsPlumbToolkit.Dialogs.show({
+            dialogs.show({
                 id: "dlgColumnEdit",
                 title: "Column Details",
                 data: info.obj.data,
@@ -353,7 +364,7 @@
                     // id and name of the new column.  This will result in a callback to the portFactory defined above.
                     if (data.name) {
                         if (data.name.length < 2)
-                            jsPlumbToolkit.Dialogs.show({id: "dlgMessage", msg: "Column names must be at least 2 characters!"});
+                            dialogs.show({id: "dlgMessage", msg: "Column names must be at least 2 characters!"});
                         else {
                             toolkit.updatePort(info.obj, {
                                 name: data.name.replace(" ", "_").toLowerCase(),
@@ -369,12 +380,12 @@
 // ------------------------- / behaviour ----------------------------------
 
         // pan mode/select mode
-        jsPlumb.on(controls, "tap", "[mode]", function () {
+        renderer.on(controls, "tap", "[mode]", function () {
             renderer.setMode(this.getAttribute("mode"));
         });
 
         // on home button click, zoom content to fit.
-        jsPlumb.on(controls, "tap", "[reset]", function () {
+        renderer.on(controls, "tap", "[reset]", function () {
             toolkit.clearSelection();
             renderer.zoomToFit();
         });
@@ -394,7 +405,7 @@
         //  dataGenerator: this function takes a node type and returns some default data for that node type.
         //
 
-        new SurfaceDropManager({
+        jsPlumbToolkitDrop.createSurfaceManager({
             source:nodePalette,
             selector:"[data-node-type]",
             surface:renderer,
@@ -409,13 +420,13 @@
 
 // ------------------------ / drag and drop new tables/views -----------------
 
-        var datasetView = new jsPlumbSyntaxHighlighter(toolkit, ".jtk-demo-dataset");
+        var datasetView = new jsPlumbToolkitSyntaxHighlighter.ToolkitSyntaxHighlighter(toolkit, ".jtk-demo-dataset");
 
 // ------------------------ loading  ------------------------------------
 
         // Load the data.
         toolkit.load({
-            url: "data/schema-1.json"
+            url: "schema-1.json"
         });
 
 // ------------------------ /loading  ------------------------------------
