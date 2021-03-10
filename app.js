@@ -409,7 +409,7 @@
 
 // ------------------------ / drag and drop new tables/views -----------------
 
-        var datasetView = new jsPlumbSyntaxHighlighter(toolkit, ".jtk-demo-dataset");
+        var datasetView = jsPlumbToolkitSyntaxHighlighter.newInstance(toolkit, ".jtk-demo-dataset");
 
 // ------------------------ loading  ------------------------------------
 
