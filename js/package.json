@@ -1,0 +1,11 @@
+{
+    "dependencies": {
+        "@jsplumbtoolkit/core": "file:../jsplumbtoolkit-core.tgz",
+        "@jsplumbtoolkit/browser-ui": "file:../jsplumbtoolkit-browser-ui.tgz",
+        "@jsplumbtoolkit/undo-redo": "file:../jsplumbtoolkit-undo-redo.tgz",
+        "@jsplumbtoolkit/drop": "file:../jsplumbtoolkit-drop.tgz",
+        "@jsplumbtoolkit/dialogs": "file:../jsplumbtoolkit-dialogs.tgz",
+        "@jsplumb/json-syntax-highlighter": "^1.0.4",
+        "@jsplumb/toolkit-demo-support": "^1.0.0"
+    }
+}
