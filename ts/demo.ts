@@ -1,8 +1,21 @@
-import {ready, newInstance, MiniviewPlugin, consume} from "@jsplumbtoolkit/browser-ui"
+import {ready, newInstance, MiniviewPlugin, consume, LassoPlugin} from "@jsplumbtoolkit/browser-ui"
 import { createDialogManager } from "@jsplumbtoolkit/dialogs"
-import {Edge, isPort, Vertex, uuid, EVENT_CLICK, SpringLayout, forEach} from "@jsplumbtoolkit/core"
+import {
+    Edge,
+    isPort,
+    Vertex,
+    uuid,
+    EVENT_CLICK,
+    EVENT_TAP,
+    SpringLayout,
+    forEach,
+    StateMachineConnector,
+    LabelOverlay,
+    ObjectInfo
+} from "@jsplumbtoolkit/core"
 import { createUndoRedoManager } from "@jsplumbtoolkit/undo-redo"
 import {createSurfaceManager} from "@jsplumbtoolkit/drop"
+import { newInstance as newSyntaxHighlighter } from "@jsplumb/json-syntax-highlighter"
 
 ready(() => {
 
@@ -87,7 +100,7 @@ ready(() => {
                 "common": {
                     detachable:false,
                     anchor: [ "Left", "Right" ], // anchors for the endpoints
-                    connector: "StateMachine",  //  StateMachine connector type
+                    connector: StateMachineConnector.type,  //  StateMachine connector type
                     cssClass:"common-edge",
                     events: {
                         "dbltap": (params:{edge:Edge}) => {
@@ -96,7 +109,7 @@ ready(() => {
                     },
                     overlays: [
                         {
-                            type: "Label",
+                            type: LabelOverlay.type,
                             options:{
                                 cssClass: "delete-relationship",
                                 label: "<i class='fa fa-times'></i>",
@@ -163,7 +176,8 @@ ready(() => {
                 options: {
                     container: miniviewElement
                 }
-            }
+            },
+            LassoPlugin.type
         ],
         // Register for certain events from the renderer. Here we have subscribed to the 'nodeRendered' event,
         // which is fired each time a new node is rendered.  We attach listeners to the 'new column' button
@@ -188,7 +202,7 @@ ready(() => {
         consumeRightClick:false
     });
 
-    // listener for mode change on renderer.
+   //  // listener for mode change on renderer.
     renderer.bind("modeChanged", (mode:string) => {
         forEach(controls.querySelectorAll("[mode]"), (e:Element) => {
             renderer.removeClass(e, "selected-mode")
@@ -196,7 +210,7 @@ ready(() => {
 
         renderer.addClass(controls.querySelector("[mode='" + mode + "']"), "selected-mode")
     })
-
+   //
     const undoredo = createUndoRedoManager({
         surface:renderer,
         onChange:(undo:any, undoSize:number, redoSize:number) => {
@@ -205,49 +219,43 @@ ready(() => {
         },
         compound:true
     });
-
-// ------------------------- behaviour ----------------------------------
-
-    renderer.on(controls, EVENT_CLICK, "[undo]",  () => {
+   //
+   //
+    renderer.on(controls, EVENT_TAP, "[undo]",  () => {
         undoredo.undo()
     });
 
-    renderer.on(controls, EVENT_CLICK, "[redo]", () => {
+    renderer.on(controls, EVENT_TAP, "[redo]", () => {
         undoredo.redo()
     });
-
-
-    // delete column button
-    renderer.on(canvasElement, EVENT_CLICK, ".table-column-delete, .table-column-delete i", (e:Event) => {
-        consume(e);
-        const info = renderer.getObjectInfo<Vertex>(e.target || e.srcElement);
+   //
+   //
+   //  // delete column button
+    renderer.bindModelEvent(EVENT_TAP, ".table-column-delete, .table-column-delete i", (e:Event, el:HTMLElement, info:ObjectInfo<Vertex>) => {
+        consume(e)
         dialogs.show({
             id: "dlgConfirm",
             data: {
                 msg: "Delete column '" + info.obj.data.name + "'"
             },
-            onOK: function(data:Record<string, any>) {
+            onOK: (data:Record<string, any>) => {
                 if (isPort(info.obj)) {
-                    toolkit.removePort(info.obj.getParent(), info.id);
+                    toolkit.removePort(info.obj.getParent(), info.id)
                 }
             },
-            onOpen:function(el:Element) {
-                console.dir(el);
+            onOpen:(el:Element) => {
+                console.dir(el)
             }
         })
     })
-
-    // add new column to table
-    renderer.on(canvasElement, "tap", ".new-column, .new-column i", (e:Event) => {
-        consume(e);
-        const // getObjectInfo is a helper method that retrieves the node or port associated with some
-            // element in the DOM.
-            info = renderer.getObjectInfo<Vertex>(e.target || e.srcElement);
-
+   //
+   //  // add new column to table
+    renderer.bindModelEvent(EVENT_TAP, ".new-column, .new-column i", (e:Event, el:HTMLElement, info:ObjectInfo<Vertex>) => {
+        consume(e)
         dialogs.show({
             id: "dlgColumnEdit",
             title: "Column Details",
-            onOK: function(data:Record<string, any>) {
+            onOK: (data:Record<string, any>) => {
                 // if the user supplied a column name, tell the toolkit to add a new port, providing it the
                 // id and name of the new column.  This will result in a callback to the portFactory defined above.
                 if (data.name) {
@@ -265,32 +273,29 @@ ready(() => {
             }
         });
     });
-
-    // delete a table or view
-    renderer.on(canvasElement, "tap", ".delete, .view-delete", (e:Event) => {
-        consume(e);
-        const info = renderer.getObjectInfo<Vertex>(this);
-
+   //
+   //  // delete a table or view
+    renderer.bindModelEvent(EVENT_TAP, ".delete, .view-delete", (e:Event, el:HTMLElement, info:ObjectInfo<Vertex>) => {
+        consume(e)
         dialogs.show({
             id: "dlgConfirm",
             data: {
                 msg: "Delete '" + info.id
             },
-            onOK: function(data:any) {
+            onOK: (data:any) => {
                 toolkit.removeNode(info.id);
             }
         });
 
     });
-
-    // edit a view's query
-    renderer.on(canvasElement, "tap", ".view .view-edit i", (e:Event) => {
+   //
+   //  // edit a view's query
+    renderer.bindModelEvent(EVENT_TAP, ".view .view-edit i", (e:Event, el:HTMLElement, info:ObjectInfo<Vertex>) => {
         consume(e)
-        const info = renderer.getObjectInfo<Vertex>(e.target || e.srcElement)
         dialogs.show({
             id: "dlgViewQuery",
             data: info.obj.data,
-            onOK: function(data:Record<string, any>) {
+            onOK: (data:Record<string, any>) => {
                 // update data, and UI (which works only if you use the Toolkit's default template engine, Rotors.
                 toolkit.updateNode(info.obj, data)
             }
@@ -298,17 +303,13 @@ ready(() => {
     });
 
     // change a view or table's name
-    renderer.on(canvasElement, EVENT_CLICK, ".edit-name", (e:Event) => {
+    renderer.bindModelEvent(EVENT_TAP, ".edit-name", (e:Event, el:HTMLElement, info:ObjectInfo<Vertex>) => {
         consume(e)
-        // getObjectInfo is a method that takes some DOM element (this function's `this` is
-        // set to the element that fired the event) and returns the toolkit data object that
-        // relates to the element.
-        const info = renderer.getObjectInfo<Vertex>(e.target || e.srcElement)
         dialogs.show({
             id: "dlgName",
             data: info.obj.data,
             title: "Edit " + info.obj.data.type + " name",
-            onOK: function(data:Record<string, any>) {
+            onOK: (data:Record<string, any>) => {
                 if (data.name && data.name.length > 2) {
                     // if name is at least 2 chars long, update the underlying data and
                     // update the UI.
@@ -317,18 +318,18 @@ ready(() => {
             }
         })
     })
-
-    // edit an edge's detail. If the edge was brand new and the user presses cancel, delete the edge.
+   //
+   //  // edit an edge's detail. If the edge was brand new and the user presses cancel, delete the edge.
     const _editEdge = (edge:Edge, isNew?:boolean) => {
         dialogs.show({
             id: "dlgRelationshipType",
             data: edge.data,
-            onOK: function(data:Record<string, any>) {
+            onOK: (data:Record<string, any>) => {
                 // update the type in the edge's data model...it will be re-rendered.
                 // `type` is set in the radio buttons in the dialog template.
                 toolkit.updateEdge(edge, data);
             },
-            onCancel: function() {
+            onCancel: () => {
                 // if the user pressed cancel on a new edge, delete the edge.
                 if (isNew) {
                     toolkit.removeEdge(edge);
@@ -336,16 +337,15 @@ ready(() => {
             }
         })
     }
-
-    // edit a column's details
-    renderer.on(canvasElement, EVENT_CLICK, ".table-column-edit i", (e:Event) => {
+   //
+   //  // edit a column's details
+    renderer.bindModelEvent(EVENT_TAP, ".table-column-edit i", (e:Event, el:HTMLElement, info:ObjectInfo<Vertex>) => {
         consume(e)
-        const info = renderer.getObjectInfo<Vertex>(e.target||e.srcElement)
         dialogs.show({
             id: "dlgColumnEdit",
             title: "Column Details",
             data: info.obj.data,
-            onOK: function(data:Record<string, any>) {
+            onOK: (data:Record<string, any>) => {
                 // if the user supplied a column name, tell the toolkit to add a new port, providing it the
                 // id and name of the new column.  This will result in a callback to the portFactory defined above.
                 if (data.name) {
@@ -363,34 +363,16 @@ ready(() => {
         })
     })
 
-// ------------------------- / behaviour ----------------------------------
-
     // pan mode/select mode
-    renderer.on(controls, EVENT_CLICK, "[mode]",  (e:Event) => {
-        const el = (e.target || e.srcElement) as HTMLElement
+    renderer.on(controls, EVENT_TAP, "[mode]",  (e:Event, el:HTMLElement) => {
         renderer.setMode(el.getAttribute("mode"));
     })
 
     // on home button click, zoom content to fit.
-    renderer.on(controls, EVENT_CLICK, "[reset]",  () => {
+    renderer.on(controls, EVENT_TAP, "[reset]",  () => {
         toolkit.clearSelection()
         renderer.zoomToFit()
     })
-
-// ------------------------ / rendering ------------------------------------
-
-
-// ------------------------ drag and drop new tables/views -----------------
-
-    //
-    // Here, we are registering elements that we will want to drop onto the workspace and have
-    // the toolkit recognise them as new nodes.
-    //
-    //  typeExtractor: this function takes an element and returns to jsPlumb the type of node represented by
-    //                 that element. In this application, that information is stored in the 'jtk-node-type' attribute.
-    //
-    //  dataGenerator: this function takes a node type and returns some default data for that node type.
-    //
 
     createSurfaceManager({
         source:nodePalette,
@@ -405,18 +387,13 @@ ready(() => {
         allowDropOnEdge:false
     })
 
-// ------------------------ / drag and drop new tables/views -----------------
-
-   // var datasetView = jsPlumbToolkitSyntaxHighlighter.newInstance(toolkit, ".jtk-demo-dataset");
-
-// ------------------------ loading  ------------------------------------
+   newSyntaxHighlighter(toolkit, ".jtk-demo-dataset")
 
     // Load the data.
     toolkit.load({
         url: "../data/schema-1.json"
     });
 
-// ------------------------ /loading  ------------------------------------
 
 
 
