@@ -67,10 +67,10 @@
 // ------------------------ / toolkit setup ------------------------------------
 
 // ------------------------- dialogs -------------------------------------
-//         var dialogs = jsPlumbToolkitDialogs.newInstance({
-//                 selector: ".dlg"
-//             }
-//         );
+        var dialogs = jsPlumbToolkitDialogs.createDialogManager({
+                selector: ".dlg"
+            }
+        );
 // ------------------------- / dialogs ----------------------------------
 
 // ------------------------ rendering ------------------------------------
@@ -159,7 +159,7 @@
                             hoverClass: "drop-hover"
                         },
                         events: {
-                            "dblclick": function () {
+                            "dbltap": function () {
                                 console.log(arguments);
                             }
                         }
@@ -170,9 +170,7 @@
             // for an application such as this.
             layout: {
                 type: "Spring",
-                parameters: {
-                    padding: [150, 150]
-                }
+                padding: [150, 150]
             },
             plugins:[
                 {
@@ -180,7 +178,8 @@
                     options: {
                         container: miniviewElement
                     }
-                }
+                },
+                "lasso"
             ],
             // Register for certain events from the renderer. Here we have subscribed to the 'nodeRendered' event,
             // which is fired each time a new node is rendered.  We attach listeners to the 'new column' button
@@ -211,7 +210,7 @@
             renderer.addClass(controls.querySelectorAll("[mode='" + mode + "']"), "selected-mode");
         });
 
-        var undoredo = window.undoredo = new jsPlumbToolkitUndoRedo.Manager({
+        var undoredo = jsPlumbToolkitUndoRedo.createUndoRedoManager({
             surface:renderer,
             onChange:function(undo, undoSize, redoSize) {
                 controls.setAttribute("can-undo", undoSize > 0);
@@ -401,22 +400,22 @@
         //  dataGenerator: this function takes a node type and returns some default data for that node type.
         //
 
-        // jsPlumbToolkitDrop.createSurfaceManager({
-        //     source:nodePalette,
-        //     selector:"[data-node-type]",
-        //     surface:renderer,
-        //     dataGenerator: function (el) {
-        //         return {
-        //             name:el.getAttribute("data-node-type"),
-        //             type:el.getAttribute("data-node-type")
-        //         };
-        //     },
-        //     allowDropOnEdge:false
-        // });
+        jsPlumbToolkitDrop.createSurfaceManager({
+            source:nodePalette,
+            selector:"[data-node-type]",
+            surface:renderer,
+            dataGenerator: function (el) {
+                return {
+                    name:el.getAttribute("data-node-type"),
+                    type:el.getAttribute("data-node-type")
+                };
+            },
+            allowDropOnEdge:false
+        });
 
 // ------------------------ / drag and drop new tables/views -----------------
 
-       // var datasetView = jsPlumbToolkitSyntaxHighlighter.newInstance(toolkit, ".jtk-demo-dataset");
+       jsPlumbToolkitSyntaxHighlighter.newInstance(toolkit, ".jtk-demo-dataset");
 
 // ------------------------ loading  ------------------------------------
 
