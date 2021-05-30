@@ -1,5 +1,5 @@
 import {ready, newInstance, MiniviewPlugin, consume, LassoPlugin} from "@jsplumbtoolkit/browser-ui"
-import { createDialogManager } from "@jsplumbtoolkit/dialogs"
+import { newInstance as newDialogManager } from "@jsplumbtoolkit/dialogs"
 import {
     Edge,
     isPort,
@@ -13,7 +13,7 @@ import {
     LabelOverlay,
     ObjectInfo
 } from "@jsplumbtoolkit/core"
-import { createUndoRedoManager } from "@jsplumbtoolkit/undo-redo"
+import { newInstance as createUndoRedoManager } from "@jsplumbtoolkit/undo-redo"
 import {createSurfaceManager} from "@jsplumbtoolkit/drop"
 import { newInstance as newSyntaxHighlighter } from "@jsplumb/json-syntax-highlighter"
 
@@ -52,14 +52,8 @@ ready(() => {
             })
             return true
         },
-        edgeFactory: (params:any, data:any, callback:Function) => {
-            // you must hit the callback if you provide the edgeFactory....
-            callback(data)
-            return true // ...unless you return false here, which would abort the edge
-        },
         // the name of the property in each node's data that is the key for the data for the ports for that node.
-        // we used to use portExtractor and portUpdater in this demo, prior to the existence of portDataProperty.
-        // for more complex setups, those functions may still be needed.
+        // for more complex setups you can use `portExtractor` and `portUpdater` functions - see the documentation for examples.
         portDataProperty:"columns",
         //
         // Prevent connections from a column to itself or to another column on the same table.
@@ -72,7 +66,7 @@ ready(() => {
 // ------------------------ / toolkit setup ------------------------------------
 
 // ------------------------- dialogs -------------------------------------
-    const dialogs = createDialogManager({
+    const dialogs = newDialogManager({
         selector: ".dlg"
     })
 // ------------------------- / dialogs ----------------------------------
@@ -114,7 +108,7 @@ ready(() => {
                                 cssClass: "delete-relationship",
                                 label: "<i class='fa fa-times'></i>",
                                 events: {
-                                    "tap": (params:{edge:Edge}) => {
+                                    "click": (params:{edge:Edge}) => {
                                         toolkit.removeEdge(params.edge)
                                     }
                                 }
@@ -166,8 +160,8 @@ ready(() => {
         // for an application such as this.
         layout: {
             type: SpringLayout.type,
-            parameters: {
-                padding: [150, 150]
+            options: {
+                padding: {x:150, y:150}
             }
         },
         plugins:[
@@ -185,7 +179,7 @@ ready(() => {
         // and el is the DOM element. We also attach listeners to all of the columns.
         // At this point we can use our underlying library to attach event listeners etc.
         events: {
-            edgeAdded: (params:{edge:Edge, addedByMouse?:boolean}) => {
+            "edge:add": (params:{edge:Edge, addedByMouse?:boolean}) => {
                 // Check here that the edge was not added programmatically, ie. on load.
                 if (params.addedByMouse) {
                     _editEdge(params.edge, true)
@@ -204,10 +198,7 @@ ready(() => {
 
    //  // listener for mode change on renderer.
     renderer.bind("modeChanged", (mode:string) => {
-        forEach(controls.querySelectorAll("[mode]"), (e:Element) => {
-            renderer.removeClass(e, "selected-mode")
-        })
-
+        renderer.removeClass(controls.querySelectorAll("[mode]"), "selected-mode")
         renderer.addClass(controls.querySelector("[mode='" + mode + "']"), "selected-mode")
     })
    //
@@ -387,7 +378,7 @@ ready(() => {
         allowDropOnEdge:false
     })
 
-   newSyntaxHighlighter(toolkit, ".jtk-demo-dataset")
+   newSyntaxHighlighter(toolkit, ".jtk-demo-dataset", 2)
 
     // Load the data.
     toolkit.load({

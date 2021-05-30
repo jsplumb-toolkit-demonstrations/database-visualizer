@@ -4,16 +4,6 @@
 
 // ------------------------ toolkit setup ------------------------------------
 
-        // This function is what the toolkit will use to get an ID from a node.
-        var idFunction = function (n) {
-            return n.id;
-        };
-
-        // This function is what the toolkit will use to get the associated type from a node.
-        var typeFunction = function (n) {
-            return n.type;
-        };
-
         // get the various dom elements
         var mainElement = document.querySelector("#jtk-demo-dbase"),
             canvasElement = mainElement.querySelector(".jtk-demo-canvas"),
@@ -23,8 +13,6 @@
 
         // Declare an instance of the Toolkit, and supply the functions we will use to get ids and types from nodes.
         var toolkit = jsPlumbToolkitBrowserUI.newInstance({
-            idFunction: idFunction,
-            typeFunction: typeFunction,
             nodeFactory: function (type, data, callback) {
                 data.columns = [];
                 dialogs.show({
@@ -46,15 +34,8 @@
                     }
                 });
             },
-            edgeFactory: function (params, data, callback) {
-                // you must hit the callback if you provide the edgeFactory.
-                callback(data);
-                // unless you want to return false, to abandon the edge
-                //return false;
-            },
             // the name of the property in each node's data that is the key for the data for the ports for that node.
-            // we used to use portExtractor and portUpdater in this demo, prior to the existence of portDataProperty.
-            // for more complex setups, those functions may still be needed.
+            // for more complex setups you can use `portExtractor` and `portUpdater` functions - see the documentation for examples.
             portDataProperty:"columns",
             //
             // Prevent connections from a column to itself or to another column on the same table.
@@ -67,7 +48,7 @@
 // ------------------------ / toolkit setup ------------------------------------
 
 // ------------------------- dialogs -------------------------------------
-        var dialogs = jsPlumbToolkitDialogs.createDialogManager({
+        var dialogs = jsPlumbToolkitDialogs.newInstance({
                 selector: ".dlg"
             }
         );
@@ -99,7 +80,7 @@
                         connector: "StateMachine",  //  StateMachine connector type
                         cssClass:"common-edge",
                         events: {
-                            "dbltap": function (params) {
+                            "dbltrap": function (params) {
                                 _editEdge(params.edge);
                             }
                         },
@@ -110,7 +91,7 @@
                                     cssClass: "delete-relationship",
                                     label: "<i class='fa fa-times'></i>",
                                     events: {
-                                        "tap": function (params) {
+                                        "click": function (params) {
                                             toolkit.removeEdge(params.edge);
                                         }
                                     }
@@ -210,7 +191,7 @@
             renderer.addClass(controls.querySelectorAll("[mode='" + mode + "']"), "selected-mode");
         });
 
-        var undoredo = jsPlumbToolkitUndoRedo.createUndoRedoManager({
+        var undoredo = jsPlumbToolkitUndoRedo.newInstance({
             surface:renderer,
             onChange:function(undo, undoSize, redoSize) {
                 controls.setAttribute("can-undo", undoSize > 0);
@@ -231,9 +212,8 @@
 
 
         // delete column button
-        renderer.on(canvasElement, "tap", ".table-column-delete, .table-column-delete i", function (e) {
-            jsPlumb.consume(e);
-            var info = renderer.getObjectInfo(this);
+        renderer.bindModelEvent("tap", ".table-column-delete, .table-column-delete i", function (event, els, info) {
+            jsPlumbBrowserUI.consume(event);
             dialogs.show({
                 id: "dlgConfirm",
                 data: {
@@ -241,19 +221,13 @@
                 },
                 onOK: function (data) {
                     toolkit.removePort(info.obj.getParent(), info.id);
-                },
-                onOpen:function(el) {
-                    console.dir(el);
                 }
             });
         });
 
         // add new column to table
-        renderer.on(canvasElement, "tap", ".new-column, .new-column i", function (e) {
-            jsPlumb.consume(e);
-            var // getObjectInfo is a helper method that retrieves the node or port associated with some
-                // element in the DOM.
-                info = renderer.getObjectInfo(this);
+        renderer.bindModelEvent("tap", ".new-column, .new-column i", function (event, els, info) {
+            jsPlumbBrowserUI.consume(event);
 
             dialogs.show({
                 id: "dlgColumnEdit",
@@ -278,9 +252,8 @@
         });
 
         // delete a table or view
-        renderer.on(canvasElement, "tap", ".delete, .view-delete", function (e) {
-            jsPlumb.consume(e);
-            var info = renderer.getObjectInfo(this);
+        renderer.bindModelEvent("tap", ".delete, .view-delete", function (event, els, info) {
+            jsPlumbBrowserUI.consume(event);
 
             dialogs.show({
                 id: "dlgConfirm",
@@ -295,9 +268,8 @@
         });
 
         // edit a view's query
-        renderer.on(canvasElement, "tap", ".view .view-edit i", function (e) {
-            jsPlum.consume(e);
-            var info = renderer.getObjectInfo(this);
+        renderer.bindModelEvent("tap", ".view .view-edit i", function (event, els, info) {
+            jsPlumbBrowserUI.consume(event);
             dialogs.show({
                 id: "dlgViewQuery",
                 data: info.obj.data,
@@ -309,12 +281,8 @@
         });
 
         // change a view or table's name
-        renderer.on(canvasElement, "tap", ".edit-name", function (e) {
-            jsPlumb.consume(e);
-            // getObjectInfo is a method that takes some DOM element (this function's `this` is
-            // set to the element that fired the event) and returns the toolkit data object that
-            // relates to the element.
-            var info = renderer.getObjectInfo(this);
+        renderer.bindModelEvent("tap", ".edit-name", function (event, els, info) {
+            jsPlumbBrowserUI.consume(event);
             dialogs.show({
                 id: "dlgName",
                 data: info.obj.data,
@@ -347,9 +315,8 @@
         };
 
         // edit a column's details
-        renderer.on(canvasElement, "tap", ".table-column-edit i", function (e) {
-            jsPlumb.consume(e);
-            var info = renderer.getObjectInfo(this);
+        renderer.bindModelEvent("tap", ".table-column-edit i", function (event, els, info) {
+            jsPlumbBrowserUI.consume(event);
             dialogs.show({
                 id: "dlgColumnEdit",
                 title: "Column Details",

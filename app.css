@@ -233,3 +233,7 @@
 .clearfix { clear: both; }
 
 
+.jtk-overlay {
+    z-index:11;
+}
+

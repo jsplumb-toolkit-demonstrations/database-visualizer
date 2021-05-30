@@ -98,7 +98,7 @@ The view node template is more simple than the table template; just a couple of 
 
 ```xml
 <script type="jtk" id="tmplColumn">
-  <li class="table-column table-column-type-${datatype}" primary-key="${primaryKey}" data-port-id="${id}">
+  <li class="table-column table-column-type-${datatype}" primary-key="${primaryKey}" data-jtk-port-id="${id}">
     <div class="table-column-edit">
       <i class="fa fa-pencil table-column-edit-icon"></i>
     </div>
