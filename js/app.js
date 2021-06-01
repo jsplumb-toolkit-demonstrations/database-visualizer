@@ -64,10 +64,10 @@
                 // Two node types - 'table' and 'view'
                 nodes: {
                     "table": {
-                        template: "tmplTable"
+                        templateId: "tmplTable"
                     },
                     "view": {
-                        template: "tmplView"
+                        templateId: "tmplView"
                     }
                 },
                 // Three edge types  - '1:1', '1:N' and 'N:M',
@@ -89,7 +89,7 @@
                                 type: "Label",
                                 options:{
                                     cssClass: "delete-relationship",
-                                    label: "<i class='fa fa-times'></i>",
+                                    label: "x",
                                     events: {
                                         "click": function (params) {
                                             toolkit.removeEdge(params.edge);
@@ -131,7 +131,7 @@
                 // model accordingly.
                 ports: {
                     "default": {
-                        template: "tmplColumn",
+                        templateId: "tmplColumn",
                         paintStyle: { fill: "#f76258" },		// the endpoint's appearance
                         hoverPaintStyle: { fill: "#434343" }, // appearance when mouse hovering on endpoint or connection
                         edgeType: "common", // the type of edge for connections from this port type
@@ -168,7 +168,7 @@
             // and el is the DOM element. We also attach listeners to all of the columns.
             // At this point we can use our underlying library to attach event listeners etc.
             events: {
-                edgeAdded: function (params) {
+                "edge:added": function (params) {
                     // Check here that the edge was not added programmatically, ie. on load.
                     if (params.addedByMouse) {
                         _editEdge(params.edge, true);
@@ -382,7 +382,7 @@
 
 // ------------------------ / drag and drop new tables/views -----------------
 
-       jsPlumbToolkitSyntaxHighlighter.newInstance(toolkit, ".jtk-demo-dataset");
+       jsPlumbToolkitSyntaxHighlighter.newInstance(toolkit, ".jtk-demo-dataset", 2);
 
 // ------------------------ loading  ------------------------------------
 

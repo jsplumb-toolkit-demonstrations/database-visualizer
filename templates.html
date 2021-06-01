@@ -38,7 +38,7 @@
 
 <!-- table column template -->
 <script type="jtk" id="tmplColumn">
-    <div class="table-column table-column-type-${datatype}" primary-key="${primaryKey}" data-jtk-port-id="${id}">
+    <div class="table-column table-column-type-${datatype}" primary-key="${primaryKey}" data-jtk-port="${id}" data-jtk-scope="${datatype}" data-jtk-source="true" data-jtk-target="true">
 
         <div class="table-column-delete">
             <i class="fa fa-times table-column-delete-icon"/>
@@ -47,17 +47,6 @@
         <div class="table-column-edit">
             <i class="fa fa-pencil table-column-edit-icon"/>
         </div>
-
-        <!--
-            configure the li as an edge source, with a type of column, a scope derived from
-            the columns datatype, and a filter that prevents dragging new edges from the delete button or from the label.
-        -->
-        <jtk-source port-id="${id}" scope="${datatype}" filter=".table-column-delete, .table-column-delete-icon, span, .table-column-edit, .table-column-edit-icon" filter-exclude="true"/>
-        <!--
-            configure the li as an edge target, with a type of column, and a scope derived from the
-            column's datatype.
-        -->
-        <jtk-target port-id="${id}" scope="${datatype}"/>
     </div>
 </script>
 

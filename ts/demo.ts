@@ -1,21 +1,28 @@
-import {ready, newInstance, MiniviewPlugin, consume, LassoPlugin} from "@jsplumbtoolkit/browser-ui"
+import {ready, newInstance, consume, EVENT_DBL_TAP, EVENT_SURFACE_MODE_CHANGED, EVENT_TAP, EVENT_CLICK} from "@jsplumbtoolkit/browser-ui"
 import { newInstance as newDialogManager } from "@jsplumbtoolkit/dialogs"
 import {
     Edge,
     isPort,
     Vertex,
-    uuid,
-    EVENT_CLICK,
-    EVENT_TAP,
-    SpringLayout,
-    forEach,
-    StateMachineConnector,
-    LabelOverlay,
-    ObjectInfo
+    ObjectInfo,
+    EVENT_EDGE_ADDED
 } from "@jsplumbtoolkit/core"
 import { newInstance as createUndoRedoManager } from "@jsplumbtoolkit/undo-redo"
 import {createSurfaceManager} from "@jsplumbtoolkit/drop"
 import { newInstance as newSyntaxHighlighter } from "@jsplumb/json-syntax-highlighter"
+import {StateMachineConnector} from "@jsplumb/connector-bezier"
+import {LabelOverlay, DEFAULT, AnchorLocations} from "@jsplumb/core"
+import {SpringLayout} from "@jsplumbtoolkit/layout-spring"
+import {MiniviewPlugin} from "@jsplumbtoolkit/plugin-miniview"
+import {LassoPlugin} from "@jsplumbtoolkit/plugin-lasso"
+import { uuid } from "@jsplumb/util"
+
+const COMMON = "common"
+const TABLE = "table"
+const VIEW = "view"
+const ONE_TO_ONE = "1:1"
+const ONE_TO_N = "1:N"
+const N_TO_M = "N:M"
 
 ready(() => {
 
@@ -80,24 +87,24 @@ ready(() => {
         view: {
             // Two node types - 'table' and 'view'
             nodes: {
-                "table": {
-                    template: "tmplTable"
+                [TABLE]: {
+                    templateId: "tmplTable"
                 },
-                "view": {
-                    template: "tmplView"
+                [VIEW]: {
+                    templateId: "tmplView"
                 }
             },
             // Three edge types  - '1:1', '1:N' and 'N:M',
             // sharing  a common parent, in which the connector type, anchors
             // and appearance is defined.
             edges: {
-                "common": {
+                [COMMON]: {
                     detachable:false,
-                    anchor: [ "Left", "Right" ], // anchors for the endpoints
+                    anchor: [ AnchorLocations.Left, AnchorLocations.Right ], // anchors for the endpoints
                     connector: StateMachineConnector.type,  //  StateMachine connector type
                     cssClass:"common-edge",
                     events: {
-                        "dbltap": (params:{edge:Edge}) => {
+                        [EVENT_DBL_TAP]: (params:{edge:Edge}) => {
                             _editEdge(params.edge);
                         }
                     },
@@ -106,9 +113,9 @@ ready(() => {
                             type: LabelOverlay.type,
                             options:{
                                 cssClass: "delete-relationship",
-                                label: "<i class='fa fa-times'></i>",
+                                label: "x",
                                 events: {
-                                    "click": (params:{edge:Edge}) => {
+                                    [EVENT_CLICK]: (params:{edge:Edge}) => {
                                         toolkit.removeEdge(params.edge)
                                     }
                                 }
@@ -117,25 +124,25 @@ ready(() => {
                     ]
                 },
                 // each edge type has its own overlays.
-                "1:1": {
-                    parent: "common",
+                [ONE_TO_ONE]: {
+                    parent: COMMON,
                     overlays: [
-                        { type:"Label", options:{ label: "1", location: 0.1 }},
-                        { type:"Label", options:{ label: "1", location: 0.9 }}
+                        { type:LabelOverlay.type, options:{ label: "1", location: 0.1 }},
+                        { type:LabelOverlay.type, options:{ label: "1", location: 0.9 }}
                     ]
                 },
-                "1:N": {
-                    parent: "common",
+                [ONE_TO_N]: {
+                    parent: COMMON,
                     overlays: [
-                        { type:"Label", options:{ label: "1", location: 0.1 }},
-                        { type:"Label", options:{ label: "N", location: 0.9 }}
+                        { type:LabelOverlay.type, options:{ label: "1", location: 0.1 }},
+                        { type:LabelOverlay.type, options:{ label: "N", location: 0.9 }}
                     ]
                 },
-                "N:M": {
-                    parent: "common",
+                [N_TO_M]: {
+                    parent: COMMON,
                     overlays: [
-                        { type:"Label", options:{ label: "N", location: 0.1 }},
-                        { type:"Label", options:{ label: "M", location: 0.9 }}
+                        { type:LabelOverlay.type, options:{ label: "N", location: 0.1 }},
+                        { type:LabelOverlay.type, options:{ label: "M", location: 0.9 }}
                     ]
                 }
             },
@@ -147,11 +154,11 @@ ready(() => {
             // a new relationship has been established we can ask the user for the cardinality and update the
             // model accordingly.
             ports: {
-                "default": {
-                    template: "tmplColumn",
+                [DEFAULT]: {
+                    templateId: "tmplColumn",
                     paintStyle: { fill: "#f76258" },		// the endpoint's appearance
                     hoverPaintStyle: { fill: "#434343" }, // appearance when mouse hovering on endpoint or connection
-                    edgeType: "common", // the type of edge for connections from this port type
+                    edgeType: COMMON, // the type of edge for connections from this port type
                     maxConnections: -1 // no limit on connections
                 }
             }
@@ -179,7 +186,7 @@ ready(() => {
         // and el is the DOM element. We also attach listeners to all of the columns.
         // At this point we can use our underlying library to attach event listeners etc.
         events: {
-            "edge:add": (params:{edge:Edge, addedByMouse?:boolean}) => {
+            [EVENT_EDGE_ADDED]: (params:{edge:Edge, addedByMouse?:boolean}) => {
                 // Check here that the edge was not added programmatically, ie. on load.
                 if (params.addedByMouse) {
                     _editEdge(params.edge, true)
@@ -197,7 +204,7 @@ ready(() => {
     });
 
    //  // listener for mode change on renderer.
-    renderer.bind("modeChanged", (mode:string) => {
+    renderer.bind(EVENT_SURFACE_MODE_CHANGED, (mode:string) => {
         renderer.removeClass(controls.querySelectorAll("[mode]"), "selected-mode")
         renderer.addClass(controls.querySelector("[mode='" + mode + "']"), "selected-mode")
     })
