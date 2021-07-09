@@ -1,7 +1,6 @@
 {
     "dependencies": {
         "@jsplumbtoolkit/browser-ui": "^5.0.0-RC1",
-        "@jsplumbtoolkit/undo-redo": "^5.0.0-RC1",
         "@jsplumbtoolkit/drop": "^5.0.0-RC1",
         "@jsplumbtoolkit/dialogs": "^5.0.0-RC1",
         "@jsplumbtoolkit/layout-spring": "^5.0.0-RC1",

@@ -34,6 +34,9 @@
                     }
                 });
             },
+            edgeFactory:function(type, data, continueCallback, abortCallback, params) {
+                showEdgeEditDialog(data, continueCallback, abortCallback)
+            },
             // the name of the property in each node's data that is the key for the data for the ports for that node.
             // for more complex setups you can use `portExtractor` and `portUpdater` functions - see the documentation for examples.
             portDataProperty:"columns",
@@ -45,7 +48,26 @@
             }
         });
 
+        window.tk = toolkit;
+
 // ------------------------ / toolkit setup ------------------------------------
+
+        var showEdgeEditDialog = function(data, continueCallback, abortCallback) {
+            dialogs.show({
+                id: "dlgRelationshipType",
+                data,
+                onOK: function (data) {
+                    // // update the type in the edge's data model...it will be re-rendered.
+                    // // `type` is set in the radio buttons in the dialog template.
+                    // toolkit.updateEdge(edge, data);
+                    continueCallback(data)
+                },
+                onCancel: function () {
+                    // if the user pressed cancel on a new edge, delete the edge.
+                    abortCallback && abortCallback()
+                }
+            });
+        };
 
 // ------------------------- dialogs -------------------------------------
         var dialogs = jsPlumbToolkitDialogs.newInstance({
@@ -59,7 +81,7 @@
         // Instruct the toolkit to render to the 'canvas' element. We pass in a model of nodes, edges and ports, which
         // together define the look and feel and behaviour of this renderer.  Note that we can have 0 - N renderers
         // assigned to one instance of the Toolkit..
-        var renderer = toolkit.render(canvasElement, {
+        var renderer = window.r = toolkit.render(canvasElement, {
             view: {
                 // Two node types - 'table' and 'view'
                 nodes: {
@@ -80,8 +102,10 @@
                         connector: "StateMachine",  //  StateMachine connector type
                         cssClass:"common-edge",
                         events: {
-                            "dbltrap": function (params) {
-                                _editEdge(params.edge);
+                            "dbltap": function (params) {
+                                showEdgeEditDialog(params.edge.data, function(d) {
+                                    toolkit.updateEdge(params.edge, d);
+                                })
                             }
                         },
                         overlays: [
@@ -151,7 +175,9 @@
             // for an application such as this.
             layout: {
                 type: "Spring",
-                padding: [150, 150]
+                options: {
+                    padding: [150, 150]
+                }
             },
             plugins:[
                 {
@@ -168,12 +194,6 @@
             // and el is the DOM element. We also attach listeners to all of the columns.
             // At this point we can use our underlying library to attach event listeners etc.
             events: {
-                "edge:added": function (params) {
-                    // Check here that the edge was not added programmatically, ie. on load.
-                    if (params.addedByMouse) {
-                        _editEdge(params.edge, true);
-                    }
-                },
                 canvasClick: function (e) {
                     toolkit.clearSelection();
                 }
@@ -191,25 +211,18 @@
             renderer.addClass(controls.querySelectorAll("[mode='" + mode + "']"), "selected-mode");
         });
 
-        var undoredo = jsPlumbToolkitUndoRedo.newInstance({
-            surface:renderer,
-            onChange:function(undo, undoSize, redoSize) {
-                controls.setAttribute("can-undo", undoSize > 0);
-                controls.setAttribute("can-redo", redoSize > 0);
-            },
-            compound:true
-        });
+        toolkit.bind("undoredo:update", function(state) {
+            controls.setAttribute("can-undo", state.undoCount > 0 ? "true" : "false")
+            controls.setAttribute("can-redo", state.redoCount > 0 ? "true" : "false")
+        })
 
-// ------------------------- behaviour ----------------------------------
+        renderer.on(controls, "tap", "[undo]",  () => {
+            toolkit.undo()
+        })
 
-        renderer.on(controls, "tap", "[undo]", function () {
-            undoredo.undo();
-        });
-
-        renderer.on(controls, "tap", "[redo]", function () {
-            undoredo.redo();
-        });
-
+        renderer.on(controls, "tap", "[redo]", () => {
+            toolkit.redo()
+        })
 
         // delete column button
         renderer.bindModelEvent("tap", ".table-column-delete, .table-column-delete i", function (event, els, info) {
@@ -296,23 +309,6 @@
                 }
             });
         });
-
-        // edit an edge's detail
-        var _editEdge = function (edge, isNew) {
-            dialogs.show({
-                id: "dlgRelationshipType",
-                data: edge.data,
-                onOK: function (data) {
-                    // update the type in the edge's data model...it will be re-rendered.
-                    // `type` is set in the radio buttons in the dialog template.
-                    toolkit.updateEdge(edge, data);
-                },
-                onCancel: function () {
-                    // if the user pressed cancel on a new edge, delete the edge.
-                    if (isNew) toolkit.removeEdge(edge);
-                }
-            });
-        };
 
         // edit a column's details
         renderer.bindModelEvent("tap", ".table-column-edit i", function (event, els, info) {

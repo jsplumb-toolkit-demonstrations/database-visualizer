@@ -4,8 +4,7 @@
   "description": "",
   "main": "demo.js",
   "scripts": {
-    "rollup": "rollup -c rollup.config.js",
-    "tsc": "tsc"
+    "build": "set -e;npx tsc;npx rollup -c rollup.config.js"
   },
   "repository": {
     "type": "git",
@@ -18,13 +17,12 @@
   },
   "homepage": "https://github.com/jsplumb-toolkit-demonstrations/database-visualizer#readme",
   "dependencies": {
-    "@jsplumbtoolkit/browser-ui": "^5.0.0-RC1",
-    "@jsplumbtoolkit/undo-redo": "^5.0.0-RC1",
+    "@jsplumbtoolkit/browser-ui-vanilla": "^5.0.0-RC1",
     "@jsplumbtoolkit/drop": "^5.0.0-RC1",
     "@jsplumbtoolkit/dialogs": "^5.0.0-RC1",
     "@jsplumbtoolkit/layout-spring": "^5.0.0-RC1",
-    "@jsplumbtoolkit/plugin-miniview": "^5.0.0-RC1",
-    "@jsplumbtoolkit/plugin-lasso": "^5.0.0-RC1",
+    "@jsplumbtoolkit/browser-ui-plugin-miniview": "^5.0.0-RC1",
+    "@jsplumbtoolkit/browser-ui-plugin-lasso": "^5.0.0-RC1",
     "@jsplumb/connector-bezier": "^5.0.0-RC1",
     "@jsplumb/json-syntax-highlighter": "^1.0.4",
     "@jsplumb/toolkit-demo-support": "^1.0.0"

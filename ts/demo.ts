@@ -1,21 +1,40 @@
-import {ready, newInstance, consume, EVENT_DBL_TAP, EVENT_SURFACE_MODE_CHANGED, EVENT_TAP, EVENT_CLICK} from "@jsplumbtoolkit/browser-ui"
+import {
+    consume,
+    EVENT_DBL_TAP,
+    EVENT_SURFACE_MODE_CHANGED,
+    EVENT_TAP,
+    EVENT_CLICK,
+    SurfaceMode,
+    EVENT_CANVAS_CLICK
+} from "@jsplumbtoolkit/browser-ui"
+
+import {
+    ready,
+    newInstance
+} from "@jsplumbtoolkit/browser-ui-vanilla"
+
+import {
+    LabelOverlay,
+    DEFAULT,
+    AnchorLocations
+} from "@jsplumb/core"
+
 import { newInstance as newDialogManager } from "@jsplumbtoolkit/dialogs"
 import {
     Edge,
     isPort,
     Vertex,
     ObjectInfo,
-    EVENT_EDGE_ADDED
+    EVENT_UNDOREDO_UPDATE,
+    UndoRedoUpdateParams,
+    uuid, ObjectData
 } from "@jsplumbtoolkit/core"
-import { newInstance as createUndoRedoManager } from "@jsplumbtoolkit/undo-redo"
 import {createSurfaceManager} from "@jsplumbtoolkit/drop"
 import { newInstance as newSyntaxHighlighter } from "@jsplumb/json-syntax-highlighter"
 import {StateMachineConnector} from "@jsplumb/connector-bezier"
-import {LabelOverlay, DEFAULT, AnchorLocations} from "@jsplumb/core"
 import {SpringLayout} from "@jsplumbtoolkit/layout-spring"
-import {MiniviewPlugin} from "@jsplumbtoolkit/plugin-miniview"
-import {LassoPlugin} from "@jsplumbtoolkit/plugin-lasso"
-import { uuid } from "@jsplumb/util"
+import {MiniviewPlugin} from "@jsplumbtoolkit/browser-ui-plugin-miniview"
+import {LassoPlugin} from "@jsplumbtoolkit/browser-ui-plugin-lasso"
 
 const COMMON = "common"
 const TABLE = "table"
@@ -34,6 +53,10 @@ ready(() => {
         miniviewElement = mainElement.querySelector(".miniview"),
         nodePalette = mainElement.querySelector(".node-palette"),
         controls = mainElement.querySelector(".controls");
+
+    function showEdgeEditDialog(data:ObjectData, continueFunction:Function, abortFunction?:Function) {
+
+    }
 
     // Declare an instance of the Toolkit, and supply the functions we will use to get ids and types from nodes.
     const toolkit = newInstance({
@@ -57,6 +80,10 @@ ready(() => {
                     // else...do not proceed.
                 }
             })
+            return true
+        },
+        edgeFactory:function(type:string, data:any, continueCallback:Function, abortCallback:Function) {
+            showEdgeEditDialog(data, continueCallback, abortCallback)
             return true
         },
         // the name of the property in each node's data that is the key for the data for the ports for that node.
@@ -105,7 +132,9 @@ ready(() => {
                     cssClass:"common-edge",
                     events: {
                         [EVENT_DBL_TAP]: (params:{edge:Edge}) => {
-                            _editEdge(params.edge);
+                            showEdgeEditDialog(params.edge.data, (d:ObjectData) => {
+                                toolkit.updateEdge(params.edge, d);
+                            })
                         }
                     },
                     overlays: [
@@ -186,13 +215,7 @@ ready(() => {
         // and el is the DOM element. We also attach listeners to all of the columns.
         // At this point we can use our underlying library to attach event listeners etc.
         events: {
-            [EVENT_EDGE_ADDED]: (params:{edge:Edge, addedByMouse?:boolean}) => {
-                // Check here that the edge was not added programmatically, ie. on load.
-                if (params.addedByMouse) {
-                    _editEdge(params.edge, true)
-                }
-            },
-            canvasClick: (e:Event) => {
+            [EVENT_CANVAS_CLICK]: (e:Event) => {
                 toolkit.clearSelection()
             }
         },
@@ -209,23 +232,19 @@ ready(() => {
         renderer.addClass(controls.querySelector("[mode='" + mode + "']"), "selected-mode")
     })
    //
-    const undoredo = createUndoRedoManager({
-        surface:renderer,
-        onChange:(undo:any, undoSize:number, redoSize:number) => {
-            controls.setAttribute("can-undo", undoSize > 0 ? "true" : "false");
-            controls.setAttribute("can-redo", redoSize > 0 ? "true" : "false");
-        },
-        compound:true
-    });
-   //
-   //
+    toolkit.bind(EVENT_UNDOREDO_UPDATE, (state:UndoRedoUpdateParams) => {
+        controls.setAttribute("can-undo", state.undoCount > 0 ? "true" : "false")
+        controls.setAttribute("can-redo", state.redoCount > 0 ? "true" : "false")
+    })
+
     renderer.on(controls, EVENT_TAP, "[undo]",  () => {
-        undoredo.undo()
-    });
+        toolkit.undo()
+    })
 
     renderer.on(controls, EVENT_TAP, "[redo]", () => {
-        undoredo.redo()
-    });
+        toolkit.redo()
+    })
+
    //
    //
    //  // delete column button
@@ -316,25 +335,7 @@ ready(() => {
             }
         })
     })
-   //
-   //  // edit an edge's detail. If the edge was brand new and the user presses cancel, delete the edge.
-    const _editEdge = (edge:Edge, isNew?:boolean) => {
-        dialogs.show({
-            id: "dlgRelationshipType",
-            data: edge.data,
-            onOK: (data:Record<string, any>) => {
-                // update the type in the edge's data model...it will be re-rendered.
-                // `type` is set in the radio buttons in the dialog template.
-                toolkit.updateEdge(edge, data);
-            },
-            onCancel: () => {
-                // if the user pressed cancel on a new edge, delete the edge.
-                if (isNew) {
-                    toolkit.removeEdge(edge);
-                }
-            }
-        })
-    }
+
    //
    //  // edit a column's details
     renderer.bindModelEvent(EVENT_TAP, ".table-column-edit i", (e:Event, el:HTMLElement, info:ObjectInfo<Vertex>) => {
@@ -363,7 +364,7 @@ ready(() => {
 
     // pan mode/select mode
     renderer.on(controls, EVENT_TAP, "[mode]",  (e:Event, el:HTMLElement) => {
-        renderer.setMode(el.getAttribute("mode"));
+        renderer.setMode(el.getAttribute("mode") as SurfaceMode)
     })
 
     // on home button click, zoom content to fit.
@@ -389,7 +390,7 @@ ready(() => {
 
     // Load the data.
     toolkit.load({
-        url: "../data/schema-1.json"
+        url: "./schema-1.json"
     });
 
 

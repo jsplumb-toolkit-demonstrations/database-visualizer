@@ -21,7 +21,6 @@ This page gives you an in-depth look at how the application is put together.
 ##### JS
 
 - **jsplumbtoolkit.js**
-- **jsplumbtoolkit-undo-redo.js**
 - **jsplumbtoolkit-drop.js**
 - **app.js** Application specific JS.
 
@@ -487,28 +486,26 @@ Note the check for `params.addedByMouse`. This is a useful check to keep in mind
 
 ### Undo/Redo
 
-In this demonstration it is possible to undo/redo the addition or removal of tables, views, columns and relationships. This is achieved through the use of a
-`jsPlumbToolkitUndoRedo` manager.
+In this demonstration it is possible to undo/redo the addition or removal of tables, views, columns and relationships. The Toolkit has methods to support undo/redo built in.
 
 We set it up after creating our instance of the Toolkit:
 
 ```javascript
-var undoredo = new jsPlumbToolkitUndoRedo({
-    toolkit:toolkit,
-    onChange:function(undo, undoSize, redoSize) {
-        controls.setAttribute("can-undo", undoSize > 0);
-        controls.setAttribute("can-redo", redoSize > 0);
-    },
-    compound:true
-});
+
 
 jsPlumb.on(controls, "tap", "[undo]", function () {
-    undoredo.undo();
+    toolkit.undo();
 });
 
 jsPlumb.on(controls, "tap", "[redo]", function () {
-    undoredo.redo();
+    toolkit.redo();
 });
+
+toolkit.bind("undoredo:update", function(state) {
+    controls.setAttribute("can-undo", state.undoSize > 0);
+    controls.setAttribute("can-redo", state.redoSize > 0);
+}
+
 ```
 
 The `controls` element referred to here looks like this in the HTML:
