@@ -1,0 +1,138 @@
+<!-- table node type -->
+<script type="jtk" id="tmplTable">
+    <div class="table node">
+        <div class="name">
+            <div class="delete" title="Click to delete"/>
+            <span>${name}</span>
+            <div class="buttons">
+                <div class="edit-name node-edit" title="Click to edit table name"/>
+                <div class="new-column add" title="Click to add a new column"/>
+            </div>
+        </div>
+        <div class="table-columns">
+            <r-each in="columns" key="id">
+                <r-tmpl id="tmplColumn"/>
+            </r-each>
+        </div>
+    </div>
+</script>
+
+<!-- view node type -->
+<script type="jtk" id="tmplView">
+    <div class="view node">
+        <div class="name">
+            <div class="view-delete delete" title="Click to delete"/>
+            <span>${name}</span>
+            <div class="buttons">
+                <div class="edit-name" title="Click to edit view name">
+                    <i class="fa fa-pencil"/>
+                </div>
+            </div>
+        </div>
+        <div class="view-edit" title="Click to edit view query">
+            <i class="fa fa-pencil"/>
+        </div>
+        <div class="view-details">${query}</div>
+    </div>
+</script>
+
+<!-- table column template -->
+<script type="jtk" id="tmplColumn">
+    <div class="table-column table-column-type-${datatype}" primary-key="${primaryKey}" data-jtk-port="${id}" data-jtk-scope="${datatype}" data-jtk-source="true" data-jtk-target="true">
+
+        <div class="table-column-delete">
+            <i class="fa fa-times table-column-delete-icon"/>
+        </div>
+        <div><span>${name}</span></div>
+        <div class="table-column-edit">
+            <i class="fa fa-pencil table-column-edit-icon"/>
+        </div>
+    </div>
+</script>
+
+<!-- edit relationship -->
+<script type="jtk" class="dlg" id="dlgRelationshipType" title="Edit Relationship">
+    <div class="db-cardinality">
+        <ul>
+            <li>
+                <label>
+                    <input type="radio" name="rType" value="1:1" jtk-focus jtk-att="type" checked/>
+                    1:1 - One to One
+                </label>
+            </li>
+            <li>
+                <label>
+                    <input type="radio" name="rType" value="1:N" jtk-att="type"/>
+                    1:N - One to Many
+                </label>
+            </li>
+            <li>
+                <label>
+                    <input type="radio" name="rType" value="N:M" jtk-att="type"/>
+                    N:M - Many to Many
+                </label>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<!-- edit column type and key details -->
+<script type="jtk" class="dlg" id="dlgColumnEdit" title="Edit Column">
+    <div class="db-column-type">
+        <label>
+            <div class="form-labels-float">name:</div>
+            <div class="pull-left"><input class="" jtk-att="name" jtk-focus jtk-commit="true"/></div>
+            <div class="clearfix"/>
+        </label>
+
+        <div class="checkbox-id">
+            <label>
+                <input type="checkbox" class="chkPrimaryKey" jtk-att="primaryKey"/>
+                Primary Key
+            </label>
+        </div>
+
+        <p>
+            <div class="form-labels">Type:</div>
+            <div class="clearfix"></div>
+            <ul>
+                <li>
+                    <label>
+                        <input type="radio" name="cType" value="integer" jtk-focus jtk-att="datatype"/>
+                        Integer
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input type="radio" name="cType" value="varchar" jtk-att="datatype" checked/>
+                        Varchar
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input type="radio" name="cType" value="date" jtk-att="datatype"/>
+                        Date
+                    </label>
+                </li>
+            </ul>
+        </p>
+    </div>
+</script>
+
+<!-- edit view query -->
+<script type="jtk" class="dlg" id="dlgViewQuery" title="Edit Query">
+    <textarea class="txtViewQuery" jtk-focus jtk-att="query" jtk-commit="true"/>
+</script>
+
+<!-- edit name (table or view) -->
+<script type="jtk" class="dlg" id="dlgName" title="Enter Name">
+    <input type="text" size="50" jtk-focus jtk-att="name" jtk-commit="true"/>
+</script>
+
+<script type="jtk" class="dlg" id="dlgConfirm" title="Please Confirm">
+    ${msg}?
+</script>
+
+<script type="jtk" class="dlg" id="dlgMessage" title="Message" cancel="false">
+    ${msg}
+</script>
