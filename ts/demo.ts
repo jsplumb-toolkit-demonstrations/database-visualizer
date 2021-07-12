@@ -257,11 +257,8 @@ ready(() => {
             },
             onOK: (data:Record<string, any>) => {
                 if (isPort(info.obj)) {
-                    toolkit.removePort(info.obj.getParent(), info.id)
+                    toolkit.removePort(info.obj)
                 }
-            },
-            onOpen:(el:Element) => {
-                console.dir(el)
             }
         })
     })
