@@ -14,12 +14,15 @@ import {
 } from "@jsplumbtoolkit/browser-ui-vanilla"
 
 import {
-    LabelOverlay,
-    DEFAULT,
-    AnchorLocations
+    LabelOverlay
 } from "@jsplumb/core"
 
-import { newInstance as newDialogManager } from "@jsplumbtoolkit/dialogs"
+import {
+    DEFAULT,
+    AnchorLocations
+} from "@jsplumb/common"
+
+import {CancelFunction, CommitFunction, newInstance as newDialogManager} from "@jsplumbtoolkit/dialogs"
 import {
     Edge,
     isPort,
@@ -54,8 +57,14 @@ ready(() => {
         nodePalette = mainElement.querySelector(".node-palette"),
         controls = mainElement.querySelector(".controls");
 
-    function showEdgeEditDialog(data:ObjectData, continueFunction:Function, abortFunction?:Function) {
+    function showEdgeEditDialog(data:ObjectData, continueFunction:CommitFunction, abortFunction?:CancelFunction) {
 
+        dialogs.show({
+            id: "dlgRelationshipType",
+            data: data,
+            onOK: continueFunction,
+            onCancel: abortFunction
+        });
     }
 
     // Declare an instance of the Toolkit, and supply the functions we will use to get ids and types from nodes.
@@ -82,7 +91,7 @@ ready(() => {
             })
             return true
         },
-        edgeFactory:function(type:string, data:any, continueCallback:Function, abortCallback:Function) {
+        edgeFactory:function(type:string, data:any, continueCallback:CommitFunction, abortCallback:CancelFunction) {
             showEdgeEditDialog(data, continueCallback, abortCallback)
             return true
         },
