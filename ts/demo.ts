@@ -33,7 +33,6 @@ import {
     uuid, ObjectData
 } from "@jsplumbtoolkit/core"
 import {createSurfaceManager} from "@jsplumbtoolkit/drop"
-import { newInstance as newSyntaxHighlighter } from "@jsplumb/json-syntax-highlighter"
 import {StateMachineConnector} from "@jsplumb/connector-bezier"
 import {SpringLayout} from "@jsplumbtoolkit/layout-spring"
 import {MiniviewPlugin} from "@jsplumbtoolkit/browser-ui-plugin-miniview"
@@ -392,14 +391,10 @@ ready(() => {
         allowDropOnEdge:false
     })
 
-   newSyntaxHighlighter(toolkit, ".jtk-demo-dataset", 2)
-
     // Load the data.
     toolkit.load({
         url: "./schema-1.json"
     });
-
-
 
 
 });

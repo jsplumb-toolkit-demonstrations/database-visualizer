@@ -23,9 +23,7 @@
     "@jsplumbtoolkit/layout-spring": "^5.0.0-RC1",
     "@jsplumbtoolkit/browser-ui-plugin-miniview": "^5.0.0-RC1",
     "@jsplumbtoolkit/browser-ui-plugin-lasso": "^5.0.0-RC1",
-    "@jsplumb/connector-bezier": "^5.0.0-RC1",
-    "@jsplumb/json-syntax-highlighter": "^1.0.4",
-    "@jsplumb/toolkit-demo-support": "^1.0.0"
+    "@jsplumb/connector-bezier": "^5.0.0-RC1"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
