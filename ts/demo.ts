@@ -1,3 +1,4 @@
+
 import {
     consume,
     EVENT_DBL_TAP,
@@ -8,10 +9,7 @@ import {
     EVENT_CANVAS_CLICK,
     DEFAULT,
     AnchorLocations,
-    LabelOverlay
-} from "@jsplumbtoolkit/browser-ui"
-
-import {
+    LabelOverlay,
     ready,
     newInstance
 } from "@jsplumbtoolkit/browser-ui-vanilla"
