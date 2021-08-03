@@ -5,22 +5,16 @@ import {
     EVENT_TAP,
     EVENT_CLICK,
     SurfaceMode,
-    EVENT_CANVAS_CLICK
+    EVENT_CANVAS_CLICK,
+    DEFAULT,
+    AnchorLocations,
+    LabelOverlay
 } from "@jsplumbtoolkit/browser-ui"
 
 import {
     ready,
     newInstance
 } from "@jsplumbtoolkit/browser-ui-vanilla"
-
-import {
-    LabelOverlay
-} from "@jsplumb/core"
-
-import {
-    DEFAULT,
-    AnchorLocations
-} from "@jsplumb/common"
 
 import {CancelFunction, CommitFunction, newInstance as newDialogManager} from "@jsplumbtoolkit/dialogs"
 import {
