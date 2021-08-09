@@ -110,7 +110,8 @@
 }
 
 .table-column-type-integer {
-    background-color: #cbe6de;
+    /*background-color: #cbe6de;*/
+    background-color:#a0c6bb;
 }
 
 .table-column-type-date {
@@ -118,7 +119,8 @@
 }
 
 .table-column[primary-key='true'] {
-    background-color:#83b8a8;
+    /*background-color:#83b8a8;*/
+    background-color: pink;
 }
 
 /* ----------------------------------------------------------------------------------------------------- */
@@ -234,6 +236,10 @@
 
 
 .jtk-overlay {
-    z-index:11;
+    z-index:10;
+}
+
+.jtk-connector{
+    z-index:9;
 }
 

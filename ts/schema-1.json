@@ -82,7 +82,7 @@
                 {
                     "id": "created",
                     "name": "created",
-                    "datatype": "integer"
+                    "datatype": "date"
                 },
                 {
                     "id": "preferred",
@@ -135,7 +135,7 @@
                 {
                     "id": "created",
                     "name": "created",
-                    "datatype": "integer"
+                    "datatype": "date"
                 },
                 {
                     "id": "type",
