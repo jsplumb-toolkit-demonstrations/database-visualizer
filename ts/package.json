@@ -17,13 +17,13 @@
   },
   "homepage": "https://github.com/jsplumb-toolkit-demonstrations/database-visualizer#readme",
   "dependencies": {
-    "@jsplumbtoolkit/browser-ui-vanilla": "^5.0.0-RC14",
-    "@jsplumbtoolkit/drop": "^5.0.0-RC14",
-    "@jsplumbtoolkit/dialogs": "^5.0.0-RC14",
-    "@jsplumbtoolkit/layout-spring": "^5.0.0-RC14",
-    "@jsplumbtoolkit/browser-ui-plugin-miniview": "^5.0.0-RC14",
-    "@jsplumbtoolkit/browser-ui-plugin-lasso": "^5.0.0-RC14",
-    "@jsplumb/connector-bezier": "^5.0.0-RC14"
+    "@jsplumbtoolkit/browser-ui-vanilla": "^5.0.0-RC17",
+    "@jsplumbtoolkit/drop": "^5.0.0-RC17",
+    "@jsplumbtoolkit/dialogs": "^5.0.0-RC17",
+    "@jsplumbtoolkit/layout-spring": "^5.0.0-RC17",
+    "@jsplumbtoolkit/browser-ui-plugin-miniview": "^5.0.0-RC17",
+    "@jsplumbtoolkit/browser-ui-plugin-lasso": "^5.0.0-RC17",
+    "@jsplumb/connector-bezier": "^5.0.0-RC17"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
