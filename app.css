@@ -105,20 +105,20 @@
     color: #434343;
 }
 
-.table-column-type-varchar {
+[data-column-type='varchar'] {
     background-color: #cbeae1;
 }
 
-.table-column-type-integer {
-    background-color: #cbe6de;
+[data-column-type='integer'] {
+    background-color:#a0c6bb;
 }
 
-.table-column-type-date {
+[data-column-type='date'] {
     background-color: #e5f5f0;
 }
 
 .table-column[primary-key='true'] {
-    background-color:#83b8a8;
+    background-color: pink;
 }
 
 /* ----------------------------------------------------------------------------------------------------- */
@@ -167,7 +167,7 @@
 /* ---------------------------------------------------------------------------------------------------- */
 /* --- Drag/drop interactions ------------------------------------------------------------------------- */
 /* ---------------------------------------------------------------------------------------------------- */
-.drop-hover {
+.jtk-drag-hover {
     background-color: #629f72 !important;
     color: #FFF !important;
 }
@@ -232,4 +232,12 @@
 .pull-left { float: left; }
 .clearfix { clear: both; }
 
+
+.jtk-overlay {
+    z-index:10;
+}
+
+.jtk-connector{
+    z-index:9;
+}
 
