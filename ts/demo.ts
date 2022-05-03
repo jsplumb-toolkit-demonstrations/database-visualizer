@@ -12,7 +12,7 @@ import {
     LabelOverlay,
     ready,
     newInstance
-} from "@jsplumbtoolkit/browser-ui-vanilla"
+} from "@jsplumbtoolkit/browser-ui-vanilla-2"
 
 import {CancelFunction, CommitFunction, newInstance as newDialogManager} from "@jsplumbtoolkit/dialogs"
 import {
