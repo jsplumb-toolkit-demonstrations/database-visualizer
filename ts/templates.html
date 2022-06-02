@@ -3,7 +3,7 @@
     <div class="table node">
         <div class="name">
             <div class="delete" title="Click to delete"/>
-            <span>${name}</span>
+            <span>{{name}}</span>
             <div class="buttons">
                 <div class="edit-name node-edit" title="Click to edit table name"/>
                 <div class="new-column add" title="Click to add a new column"/>
@@ -22,7 +22,7 @@
     <div class="view node">
         <div class="name">
             <div class="view-delete delete" title="Click to delete"/>
-            <span>${name}</span>
+            <span>{{name}}</span>
             <div class="buttons">
                 <div class="edit-name" title="Click to edit view name">
                     <i class="fa fa-pencil"/>
@@ -32,17 +32,17 @@
         <div class="view-edit" title="Click to edit view query">
             <i class="fa fa-pencil"/>
         </div>
-        <div class="view-details">${query}</div>
+        <div class="view-details">{{query}}</div>
     </div>
 </script>
 
 <!-- table column template -->
 <script type="jtk" id="tmplColumn">
-    <div class="table-column" data-column-type="${datatype}" primary-key="${primaryKey}" data-jtk-port="${id}" data-jtk-scope="${datatype}" data-jtk-source="true" data-jtk-target="true">
+    <div class="table-column" data-column-type="{{datatype}}" primary-key="{{primaryKey}}" data-jtk-port="{{id}}" data-jtk-scope="{{datatype}}" data-jtk-source="true" data-jtk-target="true">
         <div class="table-column-delete">
             <i class="fa fa-times table-column-delete-icon"/>
         </div>
-        <div><span>${name}</span></div>
+        <div><span>{{name}}</span></div>
         <div class="table-column-edit">
             <i class="fa fa-pencil table-column-edit-icon"/>
         </div>
@@ -129,9 +129,9 @@
 </script>
 
 <script type="jtk" class="dlg" id="dlgConfirm" title="Please Confirm">
-    ${msg}?
+    {{msg}}?
 </script>
 
 <script type="jtk" class="dlg" id="dlgMessage" title="Message" cancel="false">
-    ${msg}
+    {{msg}}
 </script>

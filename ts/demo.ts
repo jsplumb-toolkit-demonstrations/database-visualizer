@@ -12,9 +12,9 @@ import {
     LabelOverlay,
     ready,
     newInstance
-} from "@jsplumbtoolkit/browser-ui-vanilla"
+} from "@jsplumbtoolkit/browser-ui-vanilla-2"
 
-import {CancelFunction, CommitFunction, newInstance as newDialogManager} from "@jsplumbtoolkit/dialogs"
+import {CancelFunction, CommitFunction, newInstance as newDialogManager} from "@jsplumbtoolkit/dialogs-2"
 import {
     Edge,
     isPort,
@@ -26,7 +26,7 @@ import {
 } from "@jsplumbtoolkit/core"
 import {createSurfaceManager} from "@jsplumbtoolkit/drop"
 import {StateMachineConnector} from "@jsplumb/connector-bezier"
-import {SpringLayout} from "@jsplumbtoolkit/layout-spring"
+import {ForceDirectedLayout} from "@jsplumbtoolkit/layout-force-directed"
 import {MiniviewPlugin} from "@jsplumbtoolkit/browser-ui-plugin-miniview"
 import {LassoPlugin} from "@jsplumbtoolkit/browser-ui-plugin-lasso"
 
@@ -195,10 +195,7 @@ ready(() => {
         // Layout the nodes using a 'Spring' (force directed) layout. This is the best layout in the jsPlumbToolkit
         // for an application such as this.
         layout: {
-            type: SpringLayout.type,
-            options: {
-                padding: {x:150, y:150}
-            }
+            type: ForceDirectedLayout.type
         },
         plugins:[
             {
@@ -225,6 +222,8 @@ ready(() => {
         zoomToFit:true,
         consumeRightClick:false
     });
+
+    (window as any).surface = renderer
 
    //  // listener for mode change on renderer.
     renderer.bind(EVENT_SURFACE_MODE_CHANGED, (mode:string) => {
