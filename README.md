@@ -1,4 +1,4 @@
 <a name="top"></a>
 ## Database Visualizer
 
-This demonstration requires version 5.x of the jsPlumb Toolkit. Documentation to follow.
+This demonstration requires at a minimum version 5.7.1 of the jsPlumb Toolkit.
