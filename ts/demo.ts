@@ -11,24 +11,22 @@ import {
     AnchorLocations,
     LabelOverlay,
     ready,
-    newInstance
-} from "@jsplumbtoolkit/browser-ui-vanilla-2"
-
-import {CancelFunction, CommitFunction, newInstance as newDialogManager} from "@jsplumbtoolkit/dialogs-2"
-import {
+    newInstance,
+    CancelFunction,
+    CommitFunction,
     Edge,
     isPort,
     Vertex,
     ObjectInfo,
     EVENT_UNDOREDO_UPDATE,
     UndoRedoUpdateParams,
-    uuid, ObjectData
-} from "@jsplumbtoolkit/core"
-import {createSurfaceManager} from "@jsplumbtoolkit/drop"
-import {StateMachineConnector} from "@jsplumb/connector-bezier"
-import {ForceDirectedLayout} from "@jsplumbtoolkit/layout-force-directed"
-import {MiniviewPlugin} from "@jsplumbtoolkit/browser-ui-plugin-miniview"
-import {LassoPlugin} from "@jsplumbtoolkit/browser-ui-plugin-lasso"
+    uuid, ObjectData,
+    createSurfaceDropManager,
+    StateMachineConnector,
+    ForceDirectedLayout,
+    MiniviewPlugin,
+    LassoPlugin, Dialogs
+} from "@jsplumbtoolkit/browser-ui"
 
 const COMMON = "common"
 const TABLE = "table"
@@ -100,7 +98,7 @@ ready(() => {
 // ------------------------ / toolkit setup ------------------------------------
 
 // ------------------------- dialogs -------------------------------------
-    const dialogs = newDialogManager({
+    const dialogs = new Dialogs({
         selector: ".dlg"
     })
 // ------------------------- / dialogs ----------------------------------
@@ -369,7 +367,7 @@ ready(() => {
         renderer.zoomToFit()
     })
 
-    createSurfaceManager({
+    createSurfaceDropManager({
         source:nodePalette,
         selector:"[data-node-type]",
         surface:renderer,
